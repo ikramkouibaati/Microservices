@@ -1,25 +1,34 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const dotenv = require('dotenv');
-const db = require('./models'); // Connexion à la base de données
-const taskRoutes = require('./routes/taskRoutes'); // Import des routes pour les tâches
+const db = require('./models'); // Import des modèles Sequelize
 
+// Charger les variables d'environnement depuis le fichier .env
 dotenv.config();
-const app = express();
 
+const app = express();
 app.use(bodyParser.json());
 
-// Définir les routes pour l'API
-app.use('/api/tasks', taskRoutes);
+// Test de la connexion à la base de données
+db.sequelize
+  .authenticate()
+  .then(() => {
+    console.log('Connexion à la base de données réussie.');
+  })
+  .catch((err) => {
+    console.error('Erreur de connexion à la base de données :', err);
+  });
 
-// Route de test pour vérifier le serveur
+// Synchroniser les modèles avec la base de données
+db.sequelize.sync({ force: false }).then(() => {
+  console.log('Base de données synchronisée.');
+});
+
+// Définir une route de test
 app.get('/', (req, res) => res.send('API en ligne !'));
 
+// Démarrer le serveur
 const PORT = process.env.PORT || 5000;
-
-// Démarrage du serveur après la synchronisation avec la base de données
-db.sequelize.sync().then(() => {
-  app.listen(PORT, () => {
-    console.log(`Serveur en cours d'exécution sur le port ${PORT}`);
-  });
+app.listen(PORT, () => {
+  console.log(`Serveur en cours d'exécution sur le port ${PORT}`);
 });

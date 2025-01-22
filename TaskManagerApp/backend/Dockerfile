@@ -6,17 +6,14 @@ WORKDIR /app
 # Copier les fichiers package.json et package-lock.json
 COPY package*.json ./
 
-# Installer les dépendances
+# Installer les dépendances, y compris 'pg'
 RUN npm install
 
-# Reconstruire les dépendances natives comme sqlite3
-RUN npm rebuild sqlite3
-
-# Copier le reste du code
+# Copier le reste de l'application
 COPY . .
 
-# Exposer le port du backend
+# Exposer le port pour le backend
 EXPOSE 5000
 
-# Commande pour démarrer le serveur
+# Commande pour démarrer le backend
 CMD ["node", "index.js"]

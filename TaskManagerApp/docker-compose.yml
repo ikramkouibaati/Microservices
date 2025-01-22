@@ -10,6 +10,12 @@ services:
       - ./backend:/app
     networks:
       - task-network
+    environment:
+      - DATABASE_HOST=postgres
+      - DATABASE_PORT=5432
+      - DATABASE_USER=admin
+      - DATABASE_PASSWORD=admin
+      - DATABASE_NAME=taskmanager
 
   frontend:
     build:
@@ -21,6 +27,22 @@ services:
     networks:
       - task-network
 
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: taskmanager
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - task-network
+
 networks:
   task-network:
     driver: bridge
+
+volumes:
+  pgdata:
