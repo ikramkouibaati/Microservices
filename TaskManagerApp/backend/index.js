@@ -27,6 +27,9 @@ db.sequelize.sync({ force: false }).then(() => {
 // Définir une route de test
 app.get('/', (req, res) => res.send('API en ligne !'));
 
+const taskRoutes = require('./routes/taskRoutes');
+app.use('/api/tasks', taskRoutes);
+
 // Démarrer le serveur
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

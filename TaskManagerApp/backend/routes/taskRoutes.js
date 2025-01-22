@@ -1,48 +1,57 @@
 const express = require('express');
-const db = require('../models');
-const Task = db.sequelize.models.Task;
-
 const router = express.Router();
+const db = require('../models');
 
-// Créer une tâche
+// Créer une nouvelle tâche
 router.post('/', async (req, res) => {
   try {
-    const task = await Task.create(req.body);
+    const task = await db.Task.create(req.body);
     res.status(201).json(task);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 });
 
-// Lire toutes les tâches
+// Obtenir toutes les tâches
 router.get('/', async (req, res) => {
   try {
-    const tasks = await Task.findAll();
+    const tasks = await db.Task.findAll();
     res.status(200).json(tasks);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 });
 
-// Mettre à jour une tâche
+// Modifier une tâche
 router.put('/:id', async (req, res) => {
   try {
-    const task = await Task.update(req.body, {
+    const [updated] = await db.Task.update(req.body, {
       where: { id: req.params.id },
     });
-    res.status(200).json(task);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+    if (updated) {
+      const updatedTask = await db.Task.findByPk(req.params.id);
+      res.status(200).json(updatedTask);
+    } else {
+      res.status(404).send('Tâche non trouvée');
+    }
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 });
 
 // Supprimer une tâche
 router.delete('/:id', async (req, res) => {
   try {
-    await Task.destroy({ where: { id: req.params.id } });
-    res.status(204).send();
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+    const deleted = await db.Task.destroy({
+      where: { id: req.params.id },
+    });
+    if (deleted) {
+      res.status(204).send('Tâche supprimée');
+    } else {
+      res.status(404).send('Tâche non trouvée');
+    }
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 });
 
